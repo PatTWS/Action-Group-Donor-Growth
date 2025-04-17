@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Donor Growth Calculator</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; }
+    input, select { margin: 5px 0; padding: 5px; width: 100%; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: right; }
+    th { background-color: #f2f2f2; }
+    .section { margin-top: 30px; }
+  </style>
+</head>
+<body>
+  <h1>Donor Growth Calculator</h1>
+
+  <div class="section">
+    <label>Initial People:</label>
+    <input type="number" id="initialPeople" value="50" />
+
+    <label>Recruits per Person per Year:</label>
+    <input type="number" id="recruitsPerPerson" value="2" />
+
+    <label>Conversion Rate (0-1):</label>
+    <input type="number" step="0.01" id="conversionRate" value="0.7" />
+
+    <label>Retention Rate (0-1):</label>
+    <input type="number" step="0.01" id="retentionRate" value="0.5" />
+
+    <label>Dropout Rate (0-1):</label>
+    <input type="number" step="0.01" id="dropoutRate" value="0.05" />
+
+    <label>Donation per Month ($):</label>
+    <input type="number" id="donation" value="10" />
+
+    <label>Months per Year:</label>
+    <input type="number" id="monthsPerYear" value="13" />
+
+    <label>Years:</label>
+    <input type="number" id="years" value="10" />
+  </div>
+
+  <button onclick="calculateGrowth()">Calculate</button>
+
+  <div class="section">
+    <table id="resultsTable">
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Active Donors</th>
+          <th>New Donors</th>
+          <th>Churned Donors</th>
+          <th>Annual Income ($)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    function calculateGrowth() {
+      const initialPeople = parseInt(document.getElementById('initialPeople').value);
+      const recruitsPerPerson = parseFloat(document.getElementById('recruitsPerPerson').value);
+      const conversionRate = parseFloat(document.getElementById('conversionRate').value);
+      const retentionRate = parseFloat(document.getElementById('retentionRate').value);
+      const dropoutRate = parseFloat(document.getElementById('dropoutRate').value);
+      const donation = parseFloat(document.getElementById('donation').value);
+      const monthsPerYear = parseInt(document.getElementById('monthsPerYear').value);
+      const years = parseInt(document.getElementById('years').value);
+
+      let active = initialPeople;
+      let results = [];
+
+      for (let year = 1; year <= years; year++) {
+        const newRecruits = active * recruitsPerPerson * conversionRate;
+        const churned = active * dropoutRate;
+        active = active * retentionRate + newRecruits;
+        const income = active * donation * monthsPerYear;
+
+        results.push({
+          year,
+          active: Math.round(active),
+          newDonors: Math.round(newRecruits),
+          churned: Math.round(churned),
+          income: Math.round(income),
+        });
+      }
+
+      const tbody = document.querySelector('#resultsTable tbody');
+      tbody.innerHTML = '';
+      results.forEach(row => {
+        tbody.innerHTML += `<tr>
+          <td>${row.year}</td>
+          <td>${row.active.toLocaleString()}</td>
+          <td>${row.newDonors.toLocaleString()}</td>
+          <td>${row.churned.toLocaleString()}</td>
+          <td>$${row.income.toLocaleString()}</td>
+        </tr>`;
+      });
+    }
+  </script>
+</body>
+</html>
